@@ -19,6 +19,9 @@ packaging, productos tangibles, alimentos, sabores y fragancias.
   contexto, hardware, capas, adaptadores LSL, modos de gaze, procesamiento,
   salidas, riesgos y plan por fases. Empezá por la sección 1 (contexto) y la
   sección 13 (estado actual y próximos pasos).
+- **[docs/SETUP_ZBOOK.md](docs/SETUP_ZBOOK.md)** — Guía paso a paso (para quien
+  nunca usó la terminal) para instalar Python, Node, Git y Claude Code en la
+  ZBook con Windows 10 y dejar el proyecto listo para la Fase 0.
 
 ## Hardware
 
