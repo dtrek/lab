@@ -1,0 +1,22 @@
+# --- DATABRAIN requirements ---
+# Instalar con: pip install -r requirements.txt
+# NOTA: tobii-research SOLO instala en Windows/macOS, NO en Linux/Colab.
+
+# Fase 0 - captura y sincronizacion
+pylsl
+tobii-research==1.11.0        # version fija: unica que soporta el X2-30
+
+# Fase 1 - procesamiento
+mne
+neurokit2
+transformers
+torch
+pillow
+opencv-python
+pandas
+numpy
+matplotlib
+
+# Opcionales
+braindecode                   # modelos de EEG (opcional)
+pyshimmer                     # Shimmer por API de bajo nivel (opcional)

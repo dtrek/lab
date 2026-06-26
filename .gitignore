@@ -1,0 +1,34 @@
+# Entornos virtuales de Python
+databrain-env/
+venv/
+.venv/
+env/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Datos crudos / grabaciones (la fuente de verdad; no versionar en git)
+*.xdf
+*.edf
+*.easy
+*.csv
+*.parquet
+recordings/
+data/
+sessions/
+
+# Modelos descargados / cache de Hugging Face
+.cache/
+*.bin
+*.safetensors
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
