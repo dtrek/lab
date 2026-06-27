@@ -207,6 +207,24 @@ AOIs, etc. — lo que se le muestra al cliente). **Fase posterior:** dashboard
 visual y capa de LLM que redacte informes a partir de las métricas
 estructuradas.
 
+**Decisión de arquitectura para la interfaz (Fase 3): app web local.** El
+dashboard y la operación del estudio se construyen como una **app web servida por
+la propia ZBook** (backend en Python hablando con los sensores + frontend web en
+`localhost`), no como un sitio remoto. Razón: los sensores están enchufados por
+USB a la ZBook y sus SDKs corren localmente; un sitio alojado en internet/GitHub
+no puede acceder a ese hardware (límite de seguridad del navegador). La web local
+da lo mejor de ambos mundos: interfaz linda con la **identidad visual de
+Databrain** (brand guidelines) y la comodidad de manejarla desde el navegador.
+Beneficio clave: cualquier dispositivo en la misma red (un **celular**, una
+tablet) puede abrir la interfaz. Caso de uso confirmado: **control remoto
+iniciar/terminar captura desde el celular** en estudios de campo (p. ej. una
+tienda, en "modo mundo real" con las Pupil Labs), donde el investigador no está
+pegado a la ZBook. Esto es solo control (manda dos órdenes, no transmite datos),
+así que **respeta la decisión offline**: no se hace monitoreo de datos neuro en
+vivo. Un panel de **pre-flight checklist** (¿los 4 sensores conectados?, ¿señal
+limpia?, ¿batería del Shimmer?) antes de grabar también cae en esta categoría y
+es compatible con offline.
+
 ## 10. Stack tecnológico
 
 Base: Python. Componentes confirmados:
@@ -229,7 +247,11 @@ Base: Python. Componentes confirmados:
   procesamiento (limpiar EEG, extraer índices, generar heatmaps válidos, alinear
   con estímulos), no en la captura. Ahí se va la mayor parte del esfuerzo.
 - **Red de la Neon:** teléfono + ZBook en la misma red y firewall con puertos LSL
-  abiertos es el típico punto que da guerra el primer día. Probar temprano.
+  abiertos es el típico punto que da guerra el primer día. Probar temprano. En
+  **estudios de campo** (tienda) no confiar en el WiFi del lugar: llevar **red
+  propia** (router portátil / hotspot dedicado) al que se conectan ZBook + celu
+  del investigador + celu de las Neon. Arma una "burbuja" de red independiente del
+  lugar y resuelve de entrada este riesgo.
 - **Tobii congelado:** usar 1.11 y no actualizar. Funciona hoy; podría degradarse
   en updates futuros.
 - **Facial coding open source ≠ Affectiva** en validación. Apto para uso propio.
@@ -258,38 +280,56 @@ Base: Python. Componentes confirmados:
 - **Fase 2 — Heatmaps sobre video.** AOIs dinámicas frame a frame; refinamiento
   de métricas.
 
-- **Fase 3 — Extras.** Dashboard; capa de LLM para informes; módulo gaze
-  webcam-based.
+- **Fase 3 — Extras.** Dashboard como **app web local** (servida por la ZBook,
+  con la identidad visual de Databrain) que incluye **control remoto de la captura
+  desde el celular** (iniciar/terminar) y un **pre-flight checklist** de sensores;
+  capa de LLM para informes; módulo gaze webcam-based. Ver la "Decisión de
+  arquitectura para la interfaz" en la sección 9.
 
 ## 13. ESTADO ACTUAL Y PRÓXIMOS PASOS
 
 *Sección de retomada. Actualizar acá cada vez que se avance.*
 
-**Fase actual:** Diseño de arquitectura COMPLETO. Aún no comenzó la
-implementación (no se ejecutó nada en la ZBook todavía). El repositorio contiene
-ya el **paquete de arranque para la ZBook (Fase 0)** en `databrain/`, listo para
-copiar a la ZBook y ejecutar.
+**Fase actual:** **Fase 0 EN CURSO en la ZBook.** El entorno ya está montado y
+funcionando: Python 3.10.11 instalado junto a la 3.14 del sistema, virtualenv
+dedicado (`databrain-proyecto\databrain-env\`) con `tobii-research==1.11.0`,
+`pylsl 1.18.2`, `mne 1.12.1`, `torch` y demás dependencias. Claude Code corre
+localmente en la ZBook para asistir contra el hardware real.
 
 **Decisiones cerradas:** todas las de las secciones 1–10 (offline, monosujeto,
 Win 10 en ZBook, 3 modos de gaze, perfiles de sesión, salidas, stack).
 
-**Adaptadores LSL:**
+**Decisiones nuevas (esta sesión):**
 
+- **Interfaz/dashboard (Fase 3) = app web local** servida por la ZBook, con la
+  identidad visual de Databrain. Ver detalle en sección 9.
+- **Control remoto de la captura desde el celular** (iniciar/terminar) para
+  estudios de campo (tienda, modo mundo real con Pupil Labs). Solo control, no
+  monitoreo de datos en vivo → respeta el offline.
+- **Red propia de campo** (router portátil / hotspot) para los estudios fuera del
+  laboratorio. Ver sección 11.
+
+**Adaptadores LSL — progreso de Fase 0 en la ZBook:**
+
+- **Tobii X2-30:** ✅ **DETECTADO Y EMITIENDO GAZE en la ZBook** (script
+  `01_test_tobii_deteccion.py` verificado esta sesión con `tobii-research
+  1.11.0`). Era el único sensor con desarrollo propio y el de mayor riesgo →
+  **riesgo despejado**. Siguiente: validar el adaptador
+  `02_adaptador_tobii_lsl.py` (outlet LSL `Databrain_Tobii_Gaze`) y verlo en
+  `03_verificar_streams_lsl.py`.
 - **Enobio:** resuelto (nativo, ya probado fuera de iMotions).
-- **Shimmer:** confirmado (Consensys Pro nativo / `pyshimmer`) — falta probar en
-  ZBook.
-- **Pupil Labs Neon:** confirmado (nativo) — falta probar en ZBook.
-- **Tobii X2-30:** confirmado por SDK 1.11 — falta escribir el adaptador y probar
-  en ZBook *(el código del adaptador ya está escrito en
-  `databrain/02_adaptador_tobii_lsl.py`, falta validarlo en hardware)*.
+- **Shimmer:** confirmado (Consensys Pro nativo / `pyshimmer`).
+- **Pupil Labs Neon:** ⬜ **ÚNICO PENDIENTE** — confirmado nativo; falta activar
+  *"Stream over LSL"* en la Companion app (misma red + puertos 16571-16604) y
+  verificar el stream en la ZBook.
 
 **Modelo facial:** elegido `dima806/facial_emotions_image_detection`
 (Apache-2.0) — falta integrar.
 
-**Próximo paso inmediato:** ejecutar **Fase 0** en la ZBook (ver sección 12).
-Empezar por instalar el entorno Python y validar los 4 streams en LabRecorder,
-dejando el Tobii (único con desarrollo) para el final de la fase. Ver
-`databrain/README.md` para el paso a paso.
+**Próximo paso inmediato:** (1) verificar el stream LSL del Tobii con el adaptador
+`02` + `03`; (2) **validar la Pupil Labs Neon** (lo único que falta de los 4
+sensores); (3) ver los cuatro streams juntos en LabRecorder = **meta de la Fase
+0**. Ver `databrain/README.md` para el paso a paso.
 
 **Pendiente de definir más adelante:** detalle de índices de EEG a calcular;
 formato exacto del reporte al cliente; elección final entre Consensys Pro nativo

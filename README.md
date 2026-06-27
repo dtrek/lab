@@ -51,6 +51,9 @@ packaging, productos tangibles, alimentos, sabores y fragancias.
 
 ## Estado actual
 
-**Diseño de arquitectura COMPLETO.** Aún no comenzó la implementación en la
-ZBook. Próximo paso: ejecutar **Fase 0** (validar los 4 streams LSL en
-LabRecorder). Ver `databrain/README.md` y la sección 12–13 de la arquitectura.
+**Fase 0 EN CURSO en la ZBook.** Entorno montado (Python 3.10.11 + virtualenv con
+`tobii-research 1.11.0`, `pylsl`, `mne`, `torch`...). El **Tobii X2-30 ya se
+detecta y emite gaze** en la ZBook — el sensor de mayor riesgo, despejado. Falta
+validar la **Pupil Labs Neon** (único sensor pendiente) y ver los 4 streams
+juntos en LabRecorder. Ver `databrain/README.md` y la sección 13 de la
+arquitectura.
